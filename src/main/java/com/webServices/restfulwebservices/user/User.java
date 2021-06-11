@@ -10,7 +10,7 @@ public class User {
 	@Positive
 	private Integer id;
 	
-	@Size(min=2)
+	@Size(min=2, message="Name should have atleast 2 chars")
 	private String name;
 	
 	@Past
