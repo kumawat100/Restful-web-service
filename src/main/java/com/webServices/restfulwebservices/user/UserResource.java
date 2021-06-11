@@ -6,6 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,32 +22,36 @@ public class UserResource {
 	@Autowired
 	UserDaoService service;
 
-	@GetMapping(path="/users")
+	@GetMapping(path = "/users")
 	public List<User> retrieveAllUsers() {
 		return service.findAll();
 	}
-	
-	@GetMapping(path="/users/{id}")
-	public User retrieveUser(@PathVariable int id) {
+
+	@GetMapping(path = "/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
 		User foundUser = service.findOne(id);
 		if (foundUser == null) {
 			throw new UserNotFoundException("ID = " + id);
 		}
-		return foundUser;
+
+		EntityModel<User> model = EntityModel.of(foundUser);
+		WebMvcLinkBuilder linkToUsers = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).retrieveAllUsers());
+		model.add(linkToUsers.withRel("all-users"));
+		return model;
 	}
-	
-	@PostMapping(path="/users")
+
+	@PostMapping(path = "/users")
 	public ResponseEntity createUser(@Valid @RequestBody User user) {
 		User newUser = service.save(user);
-		
-		URI location = ServletUriComponentsBuilder.fromCurrentServletMapping()
-		.path("/{id}")
-		.buildAndExpand(newUser.getId()).toUri();
-		
+
+		URI location = ServletUriComponentsBuilder.fromCurrentServletMapping().path("/{id}")
+				.buildAndExpand(newUser.getId()).toUri();
+
 		return ResponseEntity.created(location).build();
 	}
-	
-	@DeleteMapping(path="/users/{id}")
+
+	@DeleteMapping(path = "/users/{id}")
 	public void deleteUser(@PathVariable int id) {
 		User user = service.deleteUserById(id);
 		if (user == null) {
