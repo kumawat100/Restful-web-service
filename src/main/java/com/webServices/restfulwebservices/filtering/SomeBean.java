@@ -1,14 +1,16 @@
 package com.webServices.restfulwebservices.filtering;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(value={"field1", "field2"})	//This is class level ignore (Better option)
+//@JsonIgnoreProperties(value={"field1", "field2"})	//This is class level ignore (Better option)
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
 	private String field1;
 	private String field2;
 	
-	@JsonIgnore	//This field will not be a part of response
+	//@JsonIgnore	//This field will not be a part of response
 	private String field3;
 
 	public SomeBean(String field1, String field2, String field3) {
